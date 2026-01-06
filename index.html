@@ -31,8 +31,8 @@
         /* Cursor & Select Logic */
         html { 
             cursor: default; 
-            scroll-behavior: smooth; /* Плавный скролл */
-            scroll-padding-top: 100px; /* Отступ сверху при скролле, чтобы меню не перекрывало */
+            scroll-behavior: smooth; 
+            scroll-padding-top: 100px; 
         }
         body { width: 100%; overflow-x: hidden; background: var(--c-bg); color: var(--c-text); font-family: var(--font-sans); line-height: 1.5; }
         
@@ -67,7 +67,7 @@
             .section-pad { padding: 6rem 0; }
             .hero-title { font-size: 4.5rem; }
             .card-body { padding: 2rem; }
-            .hero-section { min-height: 100dvh; } /* Полная высота на ПК */
+            .hero-section { min-height: 100dvh; }
         }
         @media (max-width: 767px) {
             .section-pad { padding: 4rem 0; }
@@ -77,8 +77,6 @@
             .card-body { padding: 1.5rem; }
             .mobile-center { text-align: center; align-items: center; }
             .hide-mobile-text { display: none; }
-            
-            /* Фикс Hero на мобильном: чуть меньше высоты, чтобы картинка меньше кропалась */
             .hero-section { min-height: 85dvh; } 
         }
 
@@ -528,8 +526,9 @@
     </div>
 
     <script>
-        // --- 1. Swap Logic ---
-        const products = [
+        // --- 1. PRELOAD IMAGES ON LOAD (BACKGROUND) ---
+        const colors = ['Black', 'White'];
+        const productsList = [
             { id: 'img-dodeca', base: 'Dodecahedron_Studio_Shot', ext: '4.5.jpg' },
             { id: 'img-office', base: 'Dark_Academia_Office', ext: '16.9.jpg' },
             { id: 'img-torus', base: 'Torus_Studio_Shot', ext: '16.9.jpg' },
@@ -538,6 +537,32 @@
         ];
         const baseUrl = 'https://raw.githubusercontent.com/yourFriendlyEngineer/florarium-shop/refs/heads/main/images/';
 
+        function preloadImages() {
+            const imagesToLoad = [];
+            
+            // Product variations
+            productsList.forEach(p => {
+                colors.forEach(c => {
+                    imagesToLoad.push(`${baseUrl}${p.base}_${c}_${p.ext}`);
+                });
+            });
+            
+            // Hero variations
+            colors.forEach(c => {
+                imagesToLoad.push(`${baseUrl}Torus_Studio_Shot_${c}_16.9.jpg`);
+            });
+
+            // Create invisible images to force browser caching
+            imagesToLoad.forEach(src => {
+                const img = new Image();
+                img.src = src;
+            });
+        }
+
+        // Trigger preload immediately
+        preloadImages();
+
+        // --- 2. SWITCH COLOR LOGIC ---
         window.setGlobalColor = function(color) {
             document.querySelectorAll('.color-dot').forEach(d => d.style.boxShadow = 'none');
             document.querySelector(`.color-dot.${color}`).style.boxShadow = '0 0 0 2px #D4AF37';
@@ -552,24 +577,25 @@
                 setTimeout(() => {
                     img.src = newSrc;
                     img.onload = () => { img.style.opacity = targetOpacity; };
+                    // If image is already cached (due to preload), onload might trigger fast or has triggered
                     if (img.complete) { img.style.opacity = targetOpacity; }
                 }, 300);
             };
 
-            products.forEach(p => { swapImage(p.id, `${baseUrl}${p.base}_${urlColor}_${p.ext}`); });
+            productsList.forEach(p => { swapImage(p.id, `${baseUrl}${p.base}_${urlColor}_${p.ext}`); });
             swapImage('hero-img', `${baseUrl}Torus_Studio_Shot_${urlColor}_16.9.jpg`);
 
             const sel = document.getElementById('color-select');
             if(sel) sel.value = urlColor;
         };
 
-        // --- 2. Mobile Menu ---
+        // --- 3. MOBILE MENU ---
         function toggleMenu() {
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('open');
         }
 
-        // --- 3. Scroll to Order ---
+        // --- 4. SCROLL ---
         window.scrollToOrder = function(val) {
             const map = { 'Звездная Призма':'Dodecahedron', 'Обелиск':'Office', 'Торус':'Torus', 'Кристалл Тумана':'Spa', 'Оранжерея':'Living' };
             const sel = document.getElementById('model-select');
@@ -578,14 +604,14 @@
             document.getElementById('mobile-menu').classList.remove('open');
         };
 
-        // --- 4. Phone Mask ---
+        // --- 5. PHONE MASK ---
         document.getElementById('phone').addEventListener('input', function(e) {
             let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
             if (!x[2] && x[1] !== '') { e.target.value = '+7 (' + x[1]; } 
             else { e.target.value = !x[2] ? x[1] : '+7 (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : ''); }
         });
 
-        // --- 5. Submit Animation ---
+        // --- 6. SUBMIT ---
         document.getElementById('order-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
@@ -594,18 +620,16 @@
             
             btn.innerText = 'Отправка...';
             
-            // Fade out form
             form.style.transition = 'opacity 0.5s';
             form.style.opacity = '0';
             
             setTimeout(() => {
                 form.style.display = 'none';
                 success.style.display = 'block';
-                // Trigger reflow or simple fade in handled by CSS animation keyframes
             }, 500);
         });
 
-        // --- 6. Animations ---
+        // --- 7. ANIMATIONS ---
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if(entry.isIntersecting) entry.target.classList.add('visible');
@@ -616,5 +640,4 @@
     </script>
     <style>@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }</style>
 </body>
-
 </html>
