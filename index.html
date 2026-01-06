@@ -464,7 +464,8 @@
 
     <section id="order" class="section-pad" style="background: #080808;">
         <div class="container">
-            <div class="grid md-grid-cols-2 gap-12 items-start">
+            
+            <div id="order-content" class="grid md-grid-cols-2 gap-12 items-start" style="transition: opacity 0.5s ease;">
                 <div class="fade-up mobile-center">
                     <h2 style="font-size: 3.5rem; margin-bottom: 1.5rem; line-height: 1;">Связаться</h2>
                     <p class="text-muted" style="margin-bottom: 2.5rem; font-size: 1.1rem;">
@@ -480,7 +481,7 @@
                     </div>
                 </div>
 
-                <div class="fade-up" style="transition-delay: 0.1s; position: relative;">
+                <div class="fade-up" style="transition-delay: 0.1s;">
                     <form id="order-form">
                         <input type="text" class="form-input" placeholder="Ваше Имя" required>
                         <input type="tel" id="phone" class="form-input" placeholder="+7 (___) ___-__-__" required>
@@ -506,14 +507,16 @@
 
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Отправить Заявку</button>
                     </form>
-
-                    <div id="success-msg" style="display: none; text-align: center; padding: 3rem 0; animation: fadeIn 0.5s;">
-                        <span class="material-symbols-outlined text-gold" style="font-size: 4rem; margin-bottom: 1rem;">check_circle</span>
-                        <h4 style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem;">Заявка принята</h4>
-                        <p class="text-muted">Мы свяжемся с вами в течение 15 минут.</p>
-                    </div>
                 </div>
             </div>
+
+            <div id="order-success" style="display: none; flex-direction: column; align-items: center; justify-content: center; height: 400px; text-align: center; animation: fadeIn 0.8s;">
+                <span class="material-symbols-outlined text-gold" style="font-size: 5rem; margin-bottom: 1.5rem;">check_circle</span>
+                <h2 style="font-size: 3rem; margin-bottom: 1rem;">Заявка принята</h2>
+                <p class="text-muted" style="max-width: 400px; margin-bottom: 2rem;">Менеджер свяжется с вами в течение 15 минут для уточнения деталей заказа.</p>
+                <button onclick="document.getElementById('collection').scrollIntoView({ behavior: 'smooth' })" class="btn btn-gold-outline">Вернуться к коллекции</button>
+            </div>
+
         </div>
     </section>
 
@@ -611,21 +614,23 @@
             else { e.target.value = !x[2] ? x[1] : '+7 (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : ''); }
         });
 
-        // --- 6. SUBMIT ---
+        // --- 6. SUBMIT WITH FULL SCREEN REPLACEMENT ---
         document.getElementById('order-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
-            const form = e.target;
-            const success = document.getElementById('success-msg');
+            const content = document.getElementById('order-content');
+            const success = document.getElementById('order-success');
             
             btn.innerText = 'Отправка...';
             
-            form.style.transition = 'opacity 0.5s';
-            form.style.opacity = '0';
+            // 1. Fade out the entire grid content (form + text)
+            content.style.opacity = '0';
             
             setTimeout(() => {
-                form.style.display = 'none';
-                success.style.display = 'block';
+                // 2. Hide content, show success
+                content.style.display = 'none';
+                success.style.display = 'flex';
+                // Trigger reflow/animation if needed, handled by CSS animation
             }, 500);
         });
 
@@ -638,6 +643,6 @@
         document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
     </script>
-    <style>@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }</style>
+    <style>@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }</style>
 </body>
 </html>
