@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VITRUM | Эстетика Замкнутых Миров</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 fill=%22none%22 stroke=%22%23D4AF37%22 stroke-width=%225%22><path d=%22M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z M50 10 L50 50 M50 50 L90 30 M50 50 L10 30%22/></svg>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Manrope:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,200,0,0">
+
+    <style>
+        :root {
+            --c-bg: #050505;
+            --c-bg-card: #121212;
+            --c-text: #E7E5E4;
+            --c-muted: #A8A29E;
+            --c-gold: #D4AF37;
+            --c-gold-hover: #F0C43F;
+            --c-border: rgba(255, 255, 255, 0.08);
+            --font-serif: "Cormorant Garamond", serif;
+            --font-sans: "Manrope", sans-serif;
+            --glass: rgba(18, 18, 18, 0.95);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        /* Cursor & Select Logic */
+        html { 
+            cursor: default; 
+            scroll-behavior: smooth; /* Плавный скролл */
+            scroll-padding-top: 100px; /* Отступ сверху при скролле, чтобы меню не перекрывало */
+        }
+        body { width: 100%; overflow-x: hidden; background: var(--c-bg); color: var(--c-text); font-family: var(--font-sans); line-height: 1.5; }
+        
+        body, a, button, img, .material-symbols-outlined { user-select: none; }
+        p, h1, h2, h3, h4, span, li, strong { user-select: text; cursor: default; }
+        a, button, .btn, label, select, input[type="checkbox"] { cursor: pointer !important; }
+        input[type="text"], input[type="tel"] { cursor: text !important; user-select: text; }
+
+        /* Typography */
+        h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 400; line-height: 1.1; color: white; }
+        .text-gold { color: var(--c-gold); }
+        .text-muted { color: var(--c-muted); }
+        .uppercase { text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* Layout */
+        .container { max-width: 1280px; margin: 0 auto; padding: 0 1.5rem; width: 100%; position: relative; }
+        .grid { display: grid; gap: 2rem; grid-template-columns: 1fr; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .w-full { width: 100%; }
+
+        @media (min-width: 768px) {
+            .md-grid-cols-2 { grid-template-columns: 1fr 1fr; }
+            .md-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .md-grid-cols-12 { grid-template-columns: repeat(12, 1fr); }
+            .col-span-4 { grid-column: span 4; }
+            .col-span-8 { grid-column: span 8; }
+            .desktop-only { display: flex !important; }
+            .mobile-only { display: none !important; }
+            .section-pad { padding: 6rem 0; }
+            .hero-title { font-size: 4.5rem; }
+            .card-body { padding: 2rem; }
+            .hero-section { min-height: 100dvh; } /* Полная высота на ПК */
+        }
+        @media (max-width: 767px) {
+            .section-pad { padding: 4rem 0; }
+            .desktop-only { display: none !important; }
+            .mobile-only { display: flex !important; }
+            .hero-title { font-size: 2.75rem; }
+            .card-body { padding: 1.5rem; }
+            .mobile-center { text-align: center; align-items: center; }
+            .hide-mobile-text { display: none; }
+            
+            /* Фикс Hero на мобильном: чуть меньше высоты, чтобы картинка меньше кропалась */
+            .hero-section { min-height: 85dvh; } 
+        }
+
+        /* === COMPONENTS === */
+        
+        /* Navbar */
+        .glass-nav {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            background: var(--glass); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--c-border); padding: 1rem 0;
+        }
+        .nav-link { margin-left: 2.5rem; font-size: 0.8rem; text-transform: uppercase; color: var(--c-muted); text-decoration: none; transition: 0.3s; }
+        .nav-link:hover { color: white; }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed; inset: 0; background: #050505; z-index: 99;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+        }
+        .mobile-menu.open { opacity: 1; pointer-events: all; }
+        .mobile-link { font-family: var(--font-serif); font-size: 2.5rem; margin: 1rem 0; color: white; text-decoration: none; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 1rem 2rem; text-transform: uppercase; letter-spacing: 0.1em;
+            font-size: 0.8rem; font-weight: 600; transition: all 0.3s;
+            border: 1px solid transparent; text-decoration: none; white-space: nowrap;
+        }
+        .btn-primary { background: var(--c-gold); color: #050505; }
+        .btn-primary:hover { background: var(--c-gold-hover); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(212, 175, 55, 0.25); }
+        
+        /* GOLD OUTLINE BUTTON */
+        .btn-gold-outline {
+            border: 1px solid var(--c-gold);
+            color: var(--c-gold);
+            background: transparent;
+        }
+        .btn-gold-outline:hover {
+            background: var(--c-gold);
+            color: #050505;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-icon { 
+            display: flex; align-items: center; justify-content: center;
+            padding: 0; border: 1px solid var(--c-border); border-radius: 50%; 
+            width: 50px; height: 50px; flex-shrink: 0;
+        }
+        .btn-icon:hover { border-color: var(--c-gold); transform: scale(1.1); }
+        .btn-icon svg { width: 24px; height: 24px; fill: white; display: block; }
+
+        /* Product Cards */
+        .product-card {
+            background: var(--c-bg-card); border: 1px solid var(--c-border);
+            display: flex; flex-direction: column; height: 100%; position: relative; transition: border-color 0.3s;
+        }
+        .product-card:hover { border-color: rgba(212, 175, 55, 0.4); }
+        .ratio-box { width: 100%; position: relative; overflow: hidden; background: #000; }
+        .aspect-square { aspect-ratio: 1/1; }
+        .aspect-land { aspect-ratio: 16/9; }
+        .product-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 1; transition: opacity 0.4s ease, transform 0.8s ease; }
+        .product-card:hover .product-img { transform: scale(1.05); }
+        .card-body { flex-grow: 1; display: flex; flex-direction: column; }
+        
+        .specs-table {
+            margin-top: auto; margin-bottom: 1.5rem; padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            display: grid; grid-template-columns: 1fr auto; gap: 0.5rem;
+        }
+        .spec-label { font-size: 0.75rem; color: var(--c-muted); text-transform: uppercase; }
+        .spec-val { font-size: 0.9rem; color: white; font-family: var(--font-sans); font-weight: 500; }
+
+        /* Features */
+        .feature-card {
+            border: 1px solid var(--c-border); padding: 2rem;
+            background: rgba(255,255,255,0.02); height: 100%;
+            display: flex; flex-direction: column; transition: 0.3s;
+        }
+        .feature-card:hover { border-color: rgba(212, 175, 55, 0.3); background: rgba(255,255,255,0.04); }
+        .feat-num { color: var(--c-gold); font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 1.5rem; opacity: 0.6; display: block; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; }
+        .feat-title { color: white; font-size: 1.25rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .feat-list { list-style: none; padding: 0; }
+        .feat-list li { margin-bottom: 0.75rem; font-size: 0.9rem; color: var(--c-muted); line-height: 1.5; }
+        .feat-list strong { color: white; font-weight: 500; }
+
+        /* Bio & Form */
+        .bio-card { background: rgba(255,255,255,0.02); border: 1px solid var(--c-border); padding: 2rem; transition: 0.3s; }
+        .bio-card:hover { background: rgba(255,255,255,0.04); }
+        .bio-icons { display: flex; gap: 1.5rem; margin: 2rem 0; flex-wrap: wrap; }
+        .bio-item { display: flex; flex-direction: column; gap: 0.5rem; align-items: center; min-width: 60px; }
+        .bio-item span { font-size: 1.5rem; color: var(--c-gold); }
+        .bio-item p { font-size: 0.7rem; text-transform: uppercase; color: var(--c-muted); }
+
+        .form-input {
+            width: 100%; background: #1a1a1a; border: 1px solid var(--c-border);
+            padding: 1.25rem; color: white; font-family: var(--font-sans); font-size: 1rem;
+            margin-bottom: 1rem; transition: border-color 0.3s; appearance: none; border-radius: 0;
+        }
+        .form-input:focus { border-color: var(--c-gold); }
+        .check-group { display: flex; gap: 0.75rem; align-items: flex-start; margin-bottom: 2rem; }
+        .check-group input { margin-top: 5px; accent-color: var(--c-gold); min-width: 16px; min-height: 16px; }
+        .check-group span { font-size: 0.8rem; color: var(--c-muted); line-height: 1.4; }
+
+        .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .fade-up.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div id="mobile-menu" class="mobile-menu">
+        <button class="btn" style="position: absolute; top: 2rem; right: 1.5rem; border: none; padding: 0;" onclick="toggleMenu()">
+            <span class="material-symbols-outlined text-gold" style="font-size: 2.5rem;">close</span>
+        </button>
+        <a href="#features" class="mobile-link" onclick="toggleMenu()">О нас</a>
+        <a href="#collection" class="mobile-link" onclick="toggleMenu()">Коллекция</a>
+        <a href="#gift" class="mobile-link" onclick="toggleMenu()">Распаковка</a>
+        <a href="#order" class="mobile-link" onclick="toggleMenu()">Заказать</a>
+    </div>
+
+    <nav class="glass-nav">
+        <div class="container flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-gold" style="font-size: 2rem;">change_history</span>
+                <div class="flex flex-col">
+                    <span class="font-serif text-white tracking-wide" style="font-size: 1.25rem; line-height: 1;">VITRUM</span>
+                    <span class="text-gold text-xs uppercase tracking-wide">Studio</span>
+                </div>
+            </div>
+            
+            <div class="mobile-only">
+                <button class="btn" style="padding: 0; border: none; background: transparent;" onclick="toggleMenu()">
+                    <span class="material-symbols-outlined text-gold" style="font-size: 2.2rem;">menu</span>
+                </button>
+            </div>
+
+            <div class="desktop-only items-center">
+                <a href="#collection" class="nav-link">Коллекция</a>
+                <a href="#gift" class="nav-link">Распаковка</a>
+                <a href="#care" class="nav-link">Био-паспорт</a>
+                <a href="#order" class="btn btn-gold-outline" style="margin-left: 3rem; padding: 0.75rem 2rem;">Связаться</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-section" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; text-align: center;">
+        <img id="hero-img" src="https://raw.githubusercontent.com/yourFriendlyEngineer/florarium-shop/refs/heads/main/images/Torus_Studio_Shot_Black_16.9.jpg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: opacity 0.4s ease;">
+        <div style="position: absolute; inset: 0; background: linear-gradient(to top, #050505 5%, transparent 60%);"></div>
+        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.3);"></div>
+        
+        <div class="container relative z-10" style="padding-top: 4rem; display: flex; flex-direction: column; align-items: center;">
+            <p class="text-gold uppercase tracking-wide fade-up" style="margin-bottom: 1.5rem;">Коллекция 2025</p>
+            <h1 class="hero-title fade-up" style="margin-bottom: 2rem; color: white;">Оправа для <br> <i class="text-muted font-serif">Живой Природы</i></h1>
+            <div class="fade-up" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="#collection" class="btn btn-primary">Выбрать форму</a>
+                <a href="#gift" class="btn btn-gold-outline" style="color: white; border-color: rgba(255,255,255,0.3);">В подарок</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="features" class="section-pad" style="border-bottom: 1px solid var(--c-border); padding-top: 4rem; padding-bottom: 4rem;">
+        <div class="container">
+            <div class="grid md-grid-cols-3 gap-8">
+                
+                <div class="feature-card fade-up">
+                    <span class="feat-num">01</span>
+                    <h3 class="feat-title">Логистика</h3>
+                    <ul class="feat-list">
+                        <li><strong>Москва:</strong> Доставка курьером. По вашему желанию — в собранном виде или как набор для сборки (DIY).</li>
+                        <li><strong>Россия:</strong> Отправка СДЭК только в виде набора (DIY) с инструкцией. Это гарантирует сохранность при транспортировке.</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card fade-up" style="transition-delay: 0.1s;">
+                    <span class="feat-num">02</span>
+                    <h3 class="feat-title">Наполнение</h3>
+                    <ul class="feat-list">
+                         <li>Мы не экономим на "невидимом". Вы получаете:</li>
+                         <li>Перчатки и инструменты, специальный дренаж и уголь, авторский грунт и свежие растения, подобранные под форму.</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card fade-up" style="transition-delay: 0.2s;">
+                    <span class="feat-num">03</span>
+                    <h3 class="feat-title">Техника</h3>
+                    <ul class="feat-list">
+                        <li>Ручная работа в витражной технике Тиффани.</li>
+                        <li>Никакого клея. Только стекло 2мм, медная лента и олово. Швы покрыты черной патиной и защитным воском.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="collection" class="section-pad">
+        <div class="container">
+            <div class="flex flex-col md:flex-row justify-between items-end fade-up" style="margin-bottom: 4rem;">
+                <div>
+                    <h2 style="font-size: 3rem; margin-bottom: 1rem; line-height: 1;">Каталог Форм</h2>
+                    <p class="text-muted">Выберите геометрию. Растения подбираются под ваш климат.</p>
+                </div>
+            </div>
+
+            <div class="grid md-grid-cols-12">
+                
+                <div class="col-span-4 product-card fade-up">
+                    <div class="ratio-box aspect-square">
+                        <img id="img-dodeca" src="https://raw.githubusercontent.com/yourFriendlyEngineer/florarium-shop/refs/heads/main/images/Dodecahedron_Studio_Shot_Black_4.5.jpg" class="product-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="flex justify-between items-start">
+                            <h3 style="font-size: 1.5rem;">Звездная Призма</h3>
+                            <span class="text-gold font-serif" style="font-size: 1.25rem;">14 000 ₽</span>
+                        </div>
+                        <p class="text-muted" style="font-size: 0.9rem; margin-top: 0.75rem;">Компактный икосаэдр. Идеальный акцент для рабочего стола.</p>
+                        
+                        <div class="specs-table">
+                            <span class="spec-label">Размеры (В×Ш×Г)</span>
+                            <span class="spec-val">21 x 23 x 23 см</span>
+                        </div>
+                        <button onclick="scrollToOrder('Звездная Призма')" class="btn btn-gold-outline w-full">Заказать</button>
+                    </div>
+                </div>
+
+                <div class="col-span-4 product-card fade-up">
+                    <div class="ratio-box aspect-square">
+                        <img id="img-office" src="https://raw.githubusercontent.com/yourFriendlyEngineer/florarium-shop/refs/heads/main/images/Dark_Academia_Office_Black_16.9.jpg" class="product-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="flex justify-between items-start">
+                            <h3 style="font-size: 1.5rem;">Обелиск</h3>
+                            <span class="text-gold font-serif" style="font-size: 1.25rem;">28 000 ₽</span>
+                        </div>
+                        <p class="text-muted" style="font-size: 0.9rem; margin-top: 0.75rem;">Высокая пирамида. Строгая вертикаль в стиле Dark Academia.</p>
+                        
+                        <div class="specs-table">
+                            <span class="spec-label">Размеры (В×Ш×Г)</span>
+                            <span class="spec-val">35 x 30 x 30 см</span>
+                        </div>
+                        <button onclick="scrollToOrder('Обелиск')" class="btn btn-gold-outline w-full">Заказать</button>
+                    </div>
+                </div>
+
+                <div class="col-span-4 product-card fade-up">
+                    <div class="ratio-box aspect-square">
+                        <img id="img-spa" src="https://raw.githubusercontent.com/yourFriendlyEngineer/florarium-shop/refs/heads/main/images/Biophilic_Spa_Black_4.5.jpg" class="product-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="flex justify-between items-start">
+                            <h3 style="font-size: 1.5rem;">Кристалл Тумана</h3>
+                            <span class="text-gold font-serif" style="font-size: 1.25rem;">14 000 ₽</span>
+                        </div>
+                        <p class="text-muted" style="font-size: 0.9rem; margin-top: 0.75rem;">Форма капли. Создана для влаголюбивых мхов.</p>
+                        
+                        <div class="specs-table">
+                            <span class="spec-label">Размеры (В×Ш×Г)</span>
+                            <span class="spec-val">30 x 17 x 17 см</span>
+                        </div>
+                        <button onclick="scrollToOrder('Кристалл Тумана')" class="btn btn-gold-outline w-full">Заказать</button>
+                    </div>
+                </div>
+
+                <div class="col-span-8 product-card fade-up">
+                    <div class="ratio-box aspect-land">
+                        <img id="img-torus" src="https://raw.githubusercontent.com/yourFriendlyEngineer/florarium-shop/refs/heads/main/images/Torus_Studio_Shot_Black_16.9.jpg" class="product-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="flex justify-between items-start">
+                            <h3 style="font-size: 1.5rem;">Гравитация Torus</h3>
+                            <span class="text-gold font-serif" style="font-size: 1.25rem;">24 000 ₽</span>
+                        </div>
+                        <p class="text-muted" style="font-size: 0.9rem; margin-top: 0.75rem;">Сложная инженерная геометрия. Центр притяжения в интерьере гостиной.</p>
+                        
+                        <div class="specs-table">
+                            <span class="spec-label">Размеры (В×Ш×Г)</span>
+                            <span class="spec-val">25 x 25 x 8 см</span>
+                        </div>
+                        <button onclick="scrollToOrder('Торус')" class="btn btn-gold-outline w-full">Заказать</button>
+                    </div>
+                </div>
+
+                <div class="col-span-4 product-card fade-up">
+                    <div class="ratio-box aspect-land">
+                        <img id="img-living" src="https://raw.githubusercontent.com/yourFriendlyEngineer/florarium-shop/refs/heads/main/images/Golden_Hour_Shadow_Play_Black_16.9.jpg" class="product-img">
+                    </div>
+                    <div class="card-body">
+                        <div class="flex justify-between items-start">
+                            <h3 style="font-size: 1.5rem;">Оранжерея</h3>
+                            <span class="text-gold font-serif" style="font-size: 1.25rem;">21 000 ₽</span>
+                        </div>
+                        <p class="text-muted" style="font-size: 0.9rem; margin-top: 0.75rem;">Классический Wardian Case. Дом для коллекции суккулентов.</p>
+                        
+                        <div class="specs-table">
+                            <span class="spec-label">Размеры (В×Ш×Г)</span>
+                            <span class="spec-val">26 x 22 x 16 см</span>
+                        </div>
+                        <button onclick="scrollToOrder('Оранжерея')" class="btn btn-gold-outline w-full">Заказать</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="gift" class="section-pad" style="border-top: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border);">
+        <div class="container">
+            <div class="grid md-grid-cols-2 gap-8 items-center">
+                <div class="fade-up">
+                    <span class="text-gold uppercase" style="font-size: 0.8rem;">Впечатление</span>
+                    <h2 style="font-size: 3rem; margin: 0.5rem 0 2rem; line-height: 1.1;">Эстетика Дарения</h2>
+                    
+                    <div class="flex flex-col" style="gap: 2.5rem;">
+                        <div class="flex" style="gap: 1.5rem;">
+                            <span class="material-symbols-outlined text-muted" style="font-size: 2.5rem;">package_2</span>
+                            <div>
+                                <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Black Box Packaging</h4>
+                                <p class="text-muted">Плотный черный дизайнерский картон, тишью и атласная лента. Эмоции начинаются до открытия.</p>
+                            </div>
+                        </div>
+                        <div class="flex" style="gap: 1.5rem;">
+                            <span class="material-symbols-outlined text-muted" style="font-size: 2.5rem;">history_edu</span>
+                            <div>
+                                <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Персонализация</h4>
+                                <p class="text-muted">Каллиграфическая подпись открытки по вашему тексту. Инструкция на крафтовой бумаге.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ratio-box aspect-land fade-up" style="border: 1px solid var(--c-border);">
+                    <img src="https://raw.githubusercontent.com/yourFriendlyEngineer/florarium-shop/refs/heads/main/images/dyi.png" alt="DIY Kit" class="product-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="care" class="section-pad">
+        <div class="container">
+            <div class="text-center fade-up" style="max-width: 700px; margin: 0 auto 4rem;">
+                <h2 style="font-size: 3rem; margin-bottom: 1rem;">Био-Паспорт</h2>
+                <p class="text-muted">Мы не используем стабилизированные растения. Внутри — живой организм. Выберите свой уровень взаимодействия.</p>
+            </div>
+
+            <div class="grid md-grid-cols-2 gap-8">
+                <div class="bio-card fade-up">
+                    <div class="flex justify-between items-center mb-6" style="border-bottom: 1px solid var(--c-border); padding-bottom: 1rem;">
+                        <h3 style="font-size: 1.75rem;">Пустыня</h3>
+                        <span class="material-symbols-outlined text-gold" style="font-size: 2rem;">wb_sunny</span>
+                    </div>
+                    <div class="bio-icons">
+                        <div class="bio-item"><span class="material-symbols-outlined">water_drop</span><p>1 раз / 2 нед</p></div>
+                        <div class="bio-item"><span class="material-symbols-outlined">light_mode</span><p>Яркий свет</p></div>
+                        <div class="bio-item"><span class="material-symbols-outlined" style="color:#4ade80;">sentiment_satisfied</span><p>Легко</p></div>
+                    </div>
+                    <p class="text-muted" style="margin-bottom: 1rem;">Для открытых форм (Оранжерея, Торус).</p>
+                    <ul class="text-muted" style="padding-left: 1.2rem; font-size: 0.9rem; line-height: 1.8;">
+                        <li>Эхеверия (Каменная роза)</li>
+                        <li>Хавортия и Крассула</li>
+                        <li>Минеральный грунт</li>
+                    </ul>
+                </div>
+
+                <div class="bio-card fade-up">
+                    <div class="flex justify-between items-center mb-6" style="border-bottom: 1px solid var(--c-border); padding-bottom: 1rem;">
+                        <h3 style="font-size: 1.75rem;">Лес</h3>
+                        <span class="material-symbols-outlined text-gold" style="font-size: 2rem;">forest</span>
+                    </div>
+                    <div class="bio-icons">
+                        <div class="bio-item"><span class="material-symbols-outlined">water_drop</span><p>1 раз / мес</p></div>
+                        <div class="bio-item"><span class="material-symbols-outlined">opacity</span><p>Влажность</p></div>
+                        <div class="bio-item"><span class="material-symbols-outlined" style="color:#fbbf24;">auto_awesome</span><p>Автономно</p></div>
+                    </div>
+                    <p class="text-muted" style="margin-bottom: 1rem;">Для замкнутых форм (Призма, Капля).</p>
+                    <ul class="text-muted" style="padding-left: 1.2rem; font-size: 0.9rem; line-height: 1.8;">
+                        <li>Живой мох Leucobryum</li>
+                        <li>Папоротник микросорум</li>
+                        <li>Фиттония</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="order" class="section-pad" style="background: #080808;">
+        <div class="container">
+            <div class="grid md-grid-cols-2 gap-12 items-start">
+                <div class="fade-up mobile-center">
+                    <h2 style="font-size: 3.5rem; margin-bottom: 1.5rem; line-height: 1;">Связаться</h2>
+                    <p class="text-muted" style="margin-bottom: 2.5rem; font-size: 1.1rem;">
+                        Оставьте заявку. Мы пришлем живые фото конкретного растения перед доставкой и согласуем удобное время.
+                    </p>
+                    <div class="flex gap-4 justify-center md:justify-start" style="margin-bottom: 2rem; gap: 2rem;">
+                        <a href="#" class="btn-icon" title="Telegram">
+                            <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 11.944 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                        </a>
+                        <a href="#" class="btn-icon" title="WhatsApp">
+                            <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="fade-up" style="transition-delay: 0.1s; position: relative;">
+                    <form id="order-form">
+                        <input type="text" class="form-input" placeholder="Ваше Имя" required>
+                        <input type="tel" id="phone" class="form-input" placeholder="+7 (___) ___-__-__" required>
+                        
+                        <div class="grid md-grid-cols-2 gap-4" style="gap: 1rem; margin-bottom: 1rem;">
+                            <select id="model-select" class="form-input" style="cursor: pointer;">
+                                <option value="Dodecahedron">Звездная Призма</option>
+                                <option value="Office">Обелиск</option>
+                                <option value="Torus">Торус</option>
+                                <option value="Spa">Кристалл Тумана</option>
+                                <option value="Living">Оранжерея</option>
+                            </select>
+                             <select id="color-select" class="form-input" style="cursor: pointer;">
+                                <option value="Black">Черный каркас</option>
+                                <option value="White">Белый каркас</option>
+                            </select>
+                        </div>
+
+                        <label class="check-group">
+                            <input type="checkbox" required>
+                            <span>Нажимая кнопку, я даю согласие на обработку персональных данных.</span>
+                        </label>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Отправить Заявку</button>
+                    </form>
+
+                    <div id="success-msg" style="display: none; text-align: center; padding: 3rem 0; animation: fadeIn 0.5s;">
+                        <span class="material-symbols-outlined text-gold" style="font-size: 4rem; margin-bottom: 1rem;">check_circle</span>
+                        <h4 style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem;">Заявка принята</h4>
+                        <p class="text-muted">Мы свяжемся с вами в течение 15 минут.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="fade-up" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 80; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+        <span class="uppercase text-muted hide-mobile-text" style="font-size: 0.7rem; text-shadow: 0 1px 3px black;">Цвет Каркаса</span>
+        <div style="background: #222; border: 1px solid var(--c-border); padding: 0.5rem 1rem; border-radius: 99px; display: flex; gap: 1rem; box-shadow: 0 10px 20px rgba(0,0,0,0.5);">
+            <div class="clickable color-dot black active" onclick="setGlobalColor('black')" style="width: 24px; height: 24px; background: black; border-radius: 50%; border: 1px solid #444; box-shadow: 0 0 0 2px var(--c-gold); transition: 0.3s;"></div>
+            <div class="clickable color-dot white" onclick="setGlobalColor('white')" style="width: 24px; height: 24px; background: #e5e5e5; border-radius: 50%; transition: 0.3s;"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Swap Logic ---
+        const products = [
+            { id: 'img-dodeca', base: 'Dodecahedron_Studio_Shot', ext: '4.5.jpg' },
+            { id: 'img-office', base: 'Dark_Academia_Office', ext: '16.9.jpg' },
+            { id: 'img-torus', base: 'Torus_Studio_Shot', ext: '16.9.jpg' },
+            { id: 'img-spa', base: 'Biophilic_Spa', ext: '4.5.jpg' },
+            { id: 'img-living', base: 'Golden_Hour_Shadow_Play', ext: '16.9.jpg' }
+        ];
+        const baseUrl = 'https://raw.githubusercontent.com/yourFriendlyEngineer/florarium-shop/refs/heads/main/images/';
+
+        window.setGlobalColor = function(color) {
+            document.querySelectorAll('.color-dot').forEach(d => d.style.boxShadow = 'none');
+            document.querySelector(`.color-dot.${color}`).style.boxShadow = '0 0 0 2px #D4AF37';
+            
+            const urlColor = color.charAt(0).toUpperCase() + color.slice(1);
+            
+            const swapImage = (id, newSrc) => {
+                const img = document.getElementById(id);
+                if(!img) return;
+                const targetOpacity = id === 'hero-img' ? '0.7' : '1';
+                img.style.opacity = '0';
+                setTimeout(() => {
+                    img.src = newSrc;
+                    img.onload = () => { img.style.opacity = targetOpacity; };
+                    if (img.complete) { img.style.opacity = targetOpacity; }
+                }, 300);
+            };
+
+            products.forEach(p => { swapImage(p.id, `${baseUrl}${p.base}_${urlColor}_${p.ext}`); });
+            swapImage('hero-img', `${baseUrl}Torus_Studio_Shot_${urlColor}_16.9.jpg`);
+
+            const sel = document.getElementById('color-select');
+            if(sel) sel.value = urlColor;
+        };
+
+        // --- 2. Mobile Menu ---
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('open');
+        }
+
+        // --- 3. Scroll to Order ---
+        window.scrollToOrder = function(val) {
+            const map = { 'Звездная Призма':'Dodecahedron', 'Обелиск':'Office', 'Торус':'Torus', 'Кристалл Тумана':'Spa', 'Оранжерея':'Living' };
+            const sel = document.getElementById('model-select');
+            if(sel && map[val]) sel.value = map[val];
+            document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('mobile-menu').classList.remove('open');
+        };
+
+        // --- 4. Phone Mask ---
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+            if (!x[2] && x[1] !== '') { e.target.value = '+7 (' + x[1]; } 
+            else { e.target.value = !x[2] ? x[1] : '+7 (' + x[2] + ') ' + x[3] + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : ''); }
+        });
+
+        // --- 5. Submit Animation ---
+        document.getElementById('order-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const form = e.target;
+            const success = document.getElementById('success-msg');
+            
+            btn.innerText = 'Отправка...';
+            
+            // Fade out form
+            form.style.transition = 'opacity 0.5s';
+            form.style.opacity = '0';
+            
+            setTimeout(() => {
+                form.style.display = 'none';
+                success.style.display = 'block';
+                // Trigger reflow or simple fade in handled by CSS animation keyframes
+            }, 500);
+        });
+
+        // --- 6. Animations ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    </script>
+    <style>@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }</style>
+</body>
+</html>
